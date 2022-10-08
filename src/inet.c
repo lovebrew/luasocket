@@ -142,7 +142,7 @@ int inet_optfamily(lua_State* L, int narg, const char* def)
     #if !defined(__3DS__)
     static const char* optname[] = { "unspec", "inet", "inet6", NULL };
     static int optvalue[] = { AF_UNSPEC, AF_INET, AF_INET6, 0 };
-    else
+    #else
     static const char* optname[] = { "unspec", "inet", NULL };
     static int optvalue[] = { AF_UNSPEC, AF_INET, 0 };
     #endif
