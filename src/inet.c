@@ -280,7 +280,7 @@ int inet_meth_getsockname(lua_State *L, p_socket ps, int family)
     int err;
     struct sockaddr_storage peer;
     socklen_t peer_len = sizeof(peer);
-    char name[INET_ADDRSTRLEN];
+    char name[INET6_ADDRSTRLEN];
     char port[6]; /* 65535 = 5 bytes + 0 to terminate it */
     if (getsockname(*ps, (SA *) &peer, &peer_len) < 0) {
         lua_pushnil(L);
@@ -288,7 +288,7 @@ int inet_meth_getsockname(lua_State *L, p_socket ps, int family)
         return 2;
     }
 	err=getnameinfo((struct sockaddr *)&peer, peer_len,
-		name, INET_ADDRSTRLEN, port, 6, NI_NUMERICHOST | NI_NUMERICSERV);
+		name, INET6_ADDRSTRLEN, port, 6, NI_NUMERICHOST | NI_NUMERICSERV);
     if (err) {
         lua_pushnil(L);
         lua_pushstring(L, LUA_GAI_STRERROR(err));

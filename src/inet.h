@@ -22,6 +22,10 @@
 #define LUASOCKET_INET_ATON
 #endif
 
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN INET_ADDRSTRLEN
+#endif
+
 #ifndef _WIN32
 #pragma GCC visibility push(hidden)
 #endif
