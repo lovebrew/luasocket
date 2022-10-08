@@ -152,6 +152,7 @@ int opt_set_tcp_keepintvl(lua_State *L, p_socket ps)
 #endif
 
 /*------------------------------------------------------*/
+#if !defined(__3DS__)
 int opt_set_keepalive(lua_State *L, p_socket ps)
 {
     return opt_setboolean(L, ps, SOL_SOCKET, SO_KEEPALIVE);
@@ -163,7 +164,6 @@ int opt_get_keepalive(lua_State *L, p_socket ps)
 }
 
 /*------------------------------------------------------*/
-#if !defined(__3DS__)
 int opt_set_dontroute(lua_State *L, p_socket ps)
 {
     return opt_setboolean(L, ps, SOL_SOCKET, SO_DONTROUTE);
@@ -185,6 +185,9 @@ int opt_get_broadcast(lua_State *L, p_socket ps)
     return opt_getboolean(L, ps, SOL_SOCKET, SO_BROADCAST);
 }
 #else
+int opt_set_keepalive(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_keepalive(lua_State *L, p_socket ps) { return get_opt_error(L); }
+
 int opt_set_dontroute(lua_State *L, p_socket ps) { return set_opt_error(L); }
 int opt_get_dontroute(lua_State *L, p_socket ps) { return get_opt_error(L); }
 
@@ -266,7 +269,7 @@ int opt_set_ip6_unicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L
 int opt_get_ip6_unicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
 
 int opt_set_ip6_multicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L); }
-int opt_get_ip6_unicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
+int opt_get_ip6_multicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
 #endif
 
 /*------------------------------------------------------*/
