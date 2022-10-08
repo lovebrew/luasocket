@@ -443,6 +443,7 @@ static int opt_setmembership(lua_State *L, p_socket ps, int level, int name)
     return opt_set(L, ps, level, name, (char *) &val, sizeof(val));
 }
 
+#if !defined(__3DS__)
 static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name)
 {
     struct ipv6_mreq val;                   /* obj, opt-name, table */
@@ -452,10 +453,8 @@ static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name)
     lua_gettable(L, 3);
     if (!lua_isstring(L, -1))
         luaL_argerror(L, 3, "string 'multiaddr' field expected");
-    #if !defined(__3DS__)
     if (!inet_pton(AF_INET6, lua_tostring(L, -1), &val.ipv6mr_multiaddr))
         luaL_argerror(L, 3, "invalid 'multiaddr' ip address");
-    #endif
     lua_pushstring(L, "interface");
     lua_gettable(L, 3);
     /* By default we listen to interface on default route
@@ -470,6 +469,12 @@ static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name)
     }
     return opt_set(L, ps, level, name, (char *) &val, sizeof(val));
 }
+#else
+static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name)
+{
+    return set_opt_error(L);
+}
+#endif
 
 static
 int opt_get(lua_State *L, p_socket ps, int level, int name, void *val, int* len)
