@@ -434,7 +434,7 @@ static int global_create6(lua_State *L) {
 #else
 static int global_create6(lua_State* L) {
     lua_pushnil(L);
-    lua_pushstring(L, "Setting local interface error: not supported")
+    lua_pushstring(L, "Setting local interface error: not supported");
 
     return 2;
 }
