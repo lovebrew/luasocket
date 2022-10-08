@@ -431,12 +431,16 @@ const char *socket_ioerror(p_socket ps, int err) {
 const char *socket_gaistrerror(int err) {
     if (err == 0) return NULL;
     switch (err) {
+#if !defined(__3DS__)
         case EAI_AGAIN: return PIE_AGAIN;
         case EAI_BADFLAGS: return PIE_BADFLAGS;
+#endif
 #ifdef EAI_BADHINTS
         case EAI_BADHINTS: return PIE_BADHINTS;
 #endif
+#if !defined(__3DS__)
         case EAI_FAIL: return PIE_FAIL;
+#endif
         case EAI_FAMILY: return PIE_FAMILY;
         case EAI_MEMORY: return PIE_MEMORY;
         case EAI_NONAME: return PIE_NONAME;
@@ -446,9 +450,13 @@ const char *socket_gaistrerror(int err) {
 #ifdef EAI_PROTOCOL
         case EAI_PROTOCOL: return PIE_PROTOCOL;
 #endif
+#if !defined(__3DS__)
         case EAI_SERVICE: return PIE_SERVICE;
+#endif
         case EAI_SOCKTYPE: return PIE_SOCKTYPE;
+#if !defined(__3DS__)
         case EAI_SYSTEM: return strerror(errno);
+#endif
         default: return LUA_GAI_STRERROR(err);
     }
 }
