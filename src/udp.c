@@ -267,7 +267,11 @@ static int meth_receivefrom(lua_State *L) {
     char *dgram = wanted > sizeof(buf)? (char *) malloc(wanted): buf;
     struct sockaddr_storage addr;
     socklen_t addr_len = sizeof(addr);
+    #if !defined(__WIIU__)
     char addrstr[INET6_ADDRSTRLEN];
+    #else
+    char addrstr[INET_ADDRSTRLEN];
+    #endif
     char portstr[6];
     int err;
     p_timeout tm = &udp->tm;
@@ -286,8 +290,13 @@ static int meth_receivefrom(lua_State *L) {
         if (wanted > sizeof(buf)) free(dgram);
         return 2;
     }
+    #if !defined(__WIIU__)
     err = getnameinfo((struct sockaddr *)&addr, addr_len, addrstr,
         INET6_ADDRSTRLEN, portstr, 6, NI_NUMERICHOST | NI_NUMERICSERV);
+    #else
+    err = getnameinfo((struct sockaddr *)&addr, addr_len, addrstr,
+        INET_ADDRSTRLEN, portstr, 6, NI_NUMERICHOST | NI_NUMERICSERV);
+    #endif
 	if (err) {
         lua_pushnil(L);
         lua_pushstring(L, LUA_GAI_STRERROR(err));
@@ -306,6 +315,7 @@ static int meth_receivefrom(lua_State *L) {
 \*-------------------------------------------------------------------------*/
 static int meth_getfamily(lua_State *L) {
     p_udp udp = (p_udp) auxiliar_checkgroup(L, "udp{any}", 1);
+    #if !defined(__WIIU__)
     if (udp->family == AF_INET6) {
         lua_pushliteral(L, "inet6");
         return 1;
@@ -313,6 +323,10 @@ static int meth_getfamily(lua_State *L) {
         lua_pushliteral(L, "inet4");
         return 1;
     }
+    #else
+    lua_pushliteral(L, "inet4");
+    return 1;
+    #endif
 }
 
 /*-------------------------------------------------------------------------*\
