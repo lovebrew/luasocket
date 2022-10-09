@@ -22,6 +22,22 @@ static int opt_set(lua_State *L, p_socket ps, int level, int name,
 static int opt_get(lua_State *L, p_socket ps, int level, int name,
         void *val, int* len);
 
+static int set_opt_error(lua_State* L)
+{
+    lua_pushnil(L);
+    lua_pushstring(L, "setsockopt failed: not supported");
+
+    return 2;
+}
+
+static int get_opt_error(lua_State* L)
+{
+    lua_pushnil(L);
+    lua_pushstring(L, "getsockopt failed: not supported");
+
+    return 2;
+}
+
 /*=========================================================================*\
 * Exported functions
 \*=========================================================================*/
@@ -216,6 +232,7 @@ int opt_set_tcp_defer_accept(lua_State *L, p_socket ps)
 #endif
 
 /*------------------------------------------------------*/
+#if !defined(__WIIU__)
 int opt_set_ip6_unicast_hops(lua_State *L, p_socket ps)
 {
   return opt_setint(L, ps, IPPROTO_IPV6, IPV6_UNICAST_HOPS);
@@ -236,7 +253,13 @@ int opt_get_ip6_multicast_hops(lua_State *L, p_socket ps)
 {
   return opt_getint(L, ps, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
 }
+#else
+int opt_set_ip6_unicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_ip6_unicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
 
+int opt_set_ip6_multicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_ip6_multicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
+#endif
 /*------------------------------------------------------*/
 int opt_set_ip_multicast_loop(lua_State *L, p_socket ps)
 {
@@ -249,6 +272,7 @@ int opt_get_ip_multicast_loop(lua_State *L, p_socket ps)
 }
 
 /*------------------------------------------------------*/
+#if !defined(__WIIU__)
 int opt_set_ip6_multicast_loop(lua_State *L, p_socket ps)
 {
     return opt_setboolean(L, ps, IPPROTO_IPV6, IPV6_MULTICAST_LOOP);
@@ -258,7 +282,10 @@ int opt_get_ip6_multicast_loop(lua_State *L, p_socket ps)
 {
     return opt_getboolean(L, ps, IPPROTO_IPV6, IPV6_MULTICAST_LOOP);
 }
-
+#else
+int opt_set_ip6_multicast_loop(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_ip6_multicast_loop(lua_State *L, p_socket ps) { return get_opt_error(L); }
+#endif
 /*------------------------------------------------------*/
 int opt_set_linger(lua_State *L, p_socket ps)
 {
@@ -293,6 +320,7 @@ int opt_get_linger(lua_State *L, p_socket ps)
 }
 
 /*------------------------------------------------------*/
+#if !defined(__WIIU__)
 int opt_set_ip_multicast_ttl(lua_State *L, p_socket ps)
 {
     return opt_setint(L, ps, IPPROTO_IP, IP_MULTICAST_TTL);
@@ -355,6 +383,24 @@ int opt_set_ip6_v6only(lua_State *L, p_socket ps)
 {
     return opt_setboolean(L, ps, IPPROTO_IPV6, IPV6_V6ONLY);
 }
+#else
+int opt_set_ip_multicast_ttl(lua_State *L, p_socket ps) { return set_opt_error(L); }
+
+int opt_set_ip_multicast_if(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_ip_multicast_if(lua_State *L, p_socket ps) { return get_opt_error(L); }
+
+int opt_set_ip_add_membership(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_set_ip_drop_membersip(lua_State *L, p_socket ps) { return set_opt_error(L); }
+
+int opt_set_ip6_add_membership(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_set_ip_drop_membersip(lua_State *L, p_socket ps) { return set_opt_error(L); }
+
+int opt_set_ip6_add_membership(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_set_ip6_drop_membersip(lua_State *L, p_socket ps) { return set_opt_error(L); }
+
+int opt_get_ip6_v6only(lua_State *L, p_socket ps) { return get_opt_error(L); }
+int opt_set_ip6_v6only(lua_State *L, p_socket ps) { return set_opt_error(L); }
+#endif
 
 /*------------------------------------------------------*/
 int opt_get_error(lua_State *L, p_socket ps)
@@ -373,6 +419,7 @@ int opt_get_error(lua_State *L, p_socket ps)
 /*=========================================================================*\
 * Auxiliar functions
 \*=========================================================================*/
+#if !defined(__WIIU__)
 static int opt_setmembership(lua_State *L, p_socket ps, int level, int name)
 {
     struct ip_mreq val;                   /* obj, name, table */
@@ -419,6 +466,10 @@ static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name)
     }
     return opt_set(L, ps, level, name, (char *) &val, sizeof(val));
 }
+#else
+static int opt_setmembership(lua_State *L, p_socket ps, int level, int name) { return set_opt_error(L); }
+static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name) { return set_opt_error(L); }
+#endif
 
 static
 int opt_get(lua_State *L, p_socket ps, int level, int name, void *val, int* len)

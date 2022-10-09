@@ -236,7 +236,7 @@ int socket_sendto(p_socket ps, const char *data, size_t count, size_t *sent,
     *sent = 0;
     if (*ps == SOCKET_INVALID) return IO_CLOSED;
     for ( ;; ) {
-        long put = (long) sendto(*ps, data, count, 0, addr, len); 
+        long put = (long) sendto(*ps, data, count, 0, addr, len);
         if (put >= 0) {
             *sent = put;
             return IO_DONE;
@@ -403,7 +403,16 @@ const char *socket_hoststrerror(int err) {
     if (err <= 0) return io_strerror(err);
     switch (err) {
         case HOST_NOT_FOUND: return PIE_HOST_NOT_FOUND;
+        #if !defined(__WIIU__)
         default: return hstrerror(err);
+        #else
+        case TRY_AGAIN: return "Host name lookup failure";
+        case NO_RECOVERY: return "Unknown server error";
+        case NO_DATA:
+        case NOADDRESS:
+            return "No address associated with name"
+
+        #endif
     }
 }
 

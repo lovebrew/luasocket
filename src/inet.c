@@ -139,9 +139,13 @@ static int inet_global_toip(lua_State *L)
 
 int inet_optfamily(lua_State* L, int narg, const char* def)
 {
+    #if !defined(__WIIU__)
     static const char* optname[] = { "unspec", "inet", "inet6", NULL };
     static int optvalue[] = { AF_UNSPEC, AF_INET, AF_INET6, 0 };
-
+    #else
+    static const char* optname[] = { "unspec", "inet", NULL };
+    static int optvalue[] = { AF_UNSPEC, AF_INET, 0 };
+    #endif
     return optvalue[luaL_checkoption(L, narg, def, optname)];
 }
 
@@ -187,11 +191,13 @@ static int inet_global_getaddrinfo(lua_State *L)
                 lua_pushliteral(L, "inet");
                 lua_settable(L, -3);
                 break;
+            #if !defined(__WIIU__)
             case AF_INET6:
                 lua_pushliteral(L, "family");
                 lua_pushliteral(L, "inet6");
                 lua_settable(L, -3);
                 break;
+            #endif
             case AF_UNSPEC:
                 lua_pushliteral(L, "family");
                 lua_pushliteral(L, "unspec");
@@ -241,16 +247,26 @@ int inet_meth_getpeername(lua_State *L, p_socket ps, int family)
     int err;
     struct sockaddr_storage peer;
     socklen_t peer_len = sizeof(peer);
+    #if !defined(__WIIU__)
     char name[INET6_ADDRSTRLEN];
+    #else
+    char name[INET_ADDRSTRLEN];
+    #endif
     char port[6]; /* 65535 = 5 bytes + 0 to terminate it */
     if (getpeername(*ps, (SA *) &peer, &peer_len) < 0) {
         lua_pushnil(L);
         lua_pushstring(L, socket_strerror(errno));
         return 2;
     }
+    #if !defined(__WIIU__)
 	err = getnameinfo((struct sockaddr *) &peer, peer_len,
         name, INET6_ADDRSTRLEN,
         port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV);
+    #else
+	err = getnameinfo((struct sockaddr *) &peer, peer_len,
+        name, INET6_ADDRSTRLEN,
+        port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV);
+    #endif
     if (err) {
         lua_pushnil(L);
         lua_pushstring(L, LUA_GAI_STRERROR(err));
@@ -260,7 +276,9 @@ int inet_meth_getpeername(lua_State *L, p_socket ps, int family)
     lua_pushinteger(L, (int) strtol(port, (char **) NULL, 10));
     switch (family) {
         case AF_INET: lua_pushliteral(L, "inet"); break;
+        #if !defined(__WIIU__)
         case AF_INET6: lua_pushliteral(L, "inet6"); break;
+        #endif
         case AF_UNSPEC: lua_pushliteral(L, "unspec"); break;
         default: lua_pushliteral(L, "unknown"); break;
     }
@@ -275,15 +293,24 @@ int inet_meth_getsockname(lua_State *L, p_socket ps, int family)
     int err;
     struct sockaddr_storage peer;
     socklen_t peer_len = sizeof(peer);
+    #if !defined(__WIIU__)
     char name[INET6_ADDRSTRLEN];
+    #else
+    char name[INET_ADDRSTRLEN];
+    #endif
     char port[6]; /* 65535 = 5 bytes + 0 to terminate it */
     if (getsockname(*ps, (SA *) &peer, &peer_len) < 0) {
         lua_pushnil(L);
         lua_pushstring(L, socket_strerror(errno));
         return 2;
     }
+    #if !defined(__WIIU__)
 	err=getnameinfo((struct sockaddr *)&peer, peer_len,
 		name, INET6_ADDRSTRLEN, port, 6, NI_NUMERICHOST | NI_NUMERICSERV);
+    #else
+	err=getnameinfo((struct sockaddr *)&peer, peer_len,
+		name, INET_ADDRSTRLEN, port, 6, NI_NUMERICHOST | NI_NUMERICSERV);
+    #endif
     if (err) {
         lua_pushnil(L);
         lua_pushstring(L, LUA_GAI_STRERROR(err));
@@ -293,7 +320,9 @@ int inet_meth_getsockname(lua_State *L, p_socket ps, int family)
     lua_pushstring(L, port);
     switch (family) {
         case AF_INET: lua_pushliteral(L, "inet"); break;
+        #if !defined(__WIIU__)
         case AF_INET6: lua_pushliteral(L, "inet6"); break;
+        #endif
         case AF_UNSPEC: lua_pushliteral(L, "unspec"); break;
         default: lua_pushliteral(L, "unknown"); break;
     }
@@ -348,10 +377,12 @@ static void inet_pushresolved(lua_State *L, struct hostent *hp)
 \*-------------------------------------------------------------------------*/
 const char *inet_trycreate(p_socket ps, int family, int type, int protocol) {
     const char *err = socket_strerror(socket_create(ps, family, type, protocol));
+    #if !defined(__WIIU__)
     if (err == NULL && family == AF_INET6) {
         int yes = 1;
         setsockopt(*ps, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&yes, sizeof(yes));
     }
+    #endif
     return err;
 }
 
@@ -369,6 +400,7 @@ const char *inet_trydisconnect(p_socket ps, int family, p_timeout tm)
             return socket_strerror(socket_connect(ps, (SA *) &sin,
                 sizeof(sin), tm));
         }
+        #if !defined(__WIIU__)
         case AF_INET6: {
             struct sockaddr_in6 sin6;
             struct in6_addr addrany = IN6ADDR_ANY_INIT;
@@ -378,6 +410,7 @@ const char *inet_trydisconnect(p_socket ps, int family, p_timeout tm)
             return socket_strerror(socket_connect(ps, (SA *) &sin6,
                 sizeof(sin6), tm));
         }
+        #endif
     }
     return NULL;
 }
@@ -436,7 +469,9 @@ const char *inet_tryaccept(p_socket server, int family, p_socket client,
 	socklen_t len;
 	t_sockaddr_storage addr;
     switch (family) {
+        #if !defined(__WIIU__)
         case AF_INET6: len = sizeof(struct sockaddr_in6); break;
+        #endif
         case AF_INET: len = sizeof(struct sockaddr_in); break;
         default: len = sizeof(addr); break;
     }
