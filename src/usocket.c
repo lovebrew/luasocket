@@ -408,9 +408,8 @@ const char *socket_hoststrerror(int err) {
         #else
         case TRY_AGAIN: return "Host name lookup failure";
         case NO_RECOVERY: return "Unknown server error";
-        case NO_DATA:
-        case NOADDRESS:
-            return "No address associated with name"
+        case NO_ADDRESS:
+            return "No address associated with name";
 
         #endif
     }
