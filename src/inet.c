@@ -264,7 +264,7 @@ int inet_meth_getpeername(lua_State *L, p_socket ps, int family)
         port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV);
     #else
 	err = getnameinfo((struct sockaddr *) &peer, peer_len,
-        name, INET6_ADDRSTRLEN,
+        name, INET_ADDRSTRLEN,
         port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV);
     #endif
     if (err) {
