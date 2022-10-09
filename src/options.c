@@ -163,6 +163,7 @@ int opt_get_keepalive(lua_State *L, p_socket ps)
 }
 
 /*------------------------------------------------------*/
+#if !defined(__WIIU__)
 int opt_set_dontroute(lua_State *L, p_socket ps)
 {
     return opt_setboolean(L, ps, SOL_SOCKET, SO_DONTROUTE);
@@ -172,6 +173,10 @@ int opt_get_dontroute(lua_State *L, p_socket ps)
 {
     return opt_getboolean(L, ps, SOL_SOCKET, SO_DONTROUTE);
 }
+#else
+int opt_set_dontroute(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_dontroute(lua_State *L, p_socket ps) { return get_opt_error(L); }
+#endif
 
 /*------------------------------------------------------*/
 int opt_set_broadcast(lua_State *L, p_socket ps)
@@ -253,13 +258,6 @@ int opt_get_ip6_multicast_hops(lua_State *L, p_socket ps)
 {
   return opt_getint(L, ps, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
 }
-#else
-int opt_set_ip6_unicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L); }
-int opt_get_ip6_unicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
-
-int opt_set_ip6_multicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L); }
-int opt_get_ip6_multicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
-#endif
 /*------------------------------------------------------*/
 int opt_set_ip_multicast_loop(lua_State *L, p_socket ps)
 {
@@ -270,6 +268,16 @@ int opt_get_ip_multicast_loop(lua_State *L, p_socket ps)
 {
     return opt_getboolean(L, ps, IPPROTO_IP, IP_MULTICAST_LOOP);
 }
+#else
+int opt_set_ip6_unicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_ip6_unicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
+
+int opt_set_ip6_multicast_hops(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_ip6_multicast_hops(lua_State *L, p_socket ps) { return get_opt_error(L); }
+
+int opt_set_ip_multicast_loop(lua_State *L, p_socket ps) { return set_opt_error(L); }
+int opt_get_ip_multicast_loop(lua_State *L, p_socket ps) { return get_opt_error(L); }
+#endif
 
 /*------------------------------------------------------*/
 #if !defined(__WIIU__)
@@ -390,9 +398,6 @@ int opt_set_ip_multicast_if(lua_State *L, p_socket ps) { return set_opt_error(L)
 int opt_get_ip_multicast_if(lua_State *L, p_socket ps) { return get_opt_error(L); }
 
 int opt_set_ip_add_membership(lua_State *L, p_socket ps) { return set_opt_error(L); }
-int opt_set_ip_drop_membersip(lua_State *L, p_socket ps) { return set_opt_error(L); }
-
-int opt_set_ip6_add_membership(lua_State *L, p_socket ps) { return set_opt_error(L); }
 int opt_set_ip_drop_membersip(lua_State *L, p_socket ps) { return set_opt_error(L); }
 
 int opt_set_ip6_add_membership(lua_State *L, p_socket ps) { return set_opt_error(L); }
