@@ -374,8 +374,7 @@ const char *inet_trydisconnect(p_socket ps, int family, p_timeout tm)
             #if !defined(__SWITCH__)
             struct in6_addr addrany = IN6ADDR_ANY_INIT;
             #else
-            struct in6_addr addrany;
-            memset(&addrany, 0, sizeof(addrany));
+            struct in6_addr addrany = in6addr_any;
             #endif
             memset((char *) &sin6, 0, sizeof(sin6));
             sin6.sin6_family = AF_UNSPEC;

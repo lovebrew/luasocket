@@ -22,6 +22,22 @@ static int opt_set(lua_State *L, p_socket ps, int level, int name,
 static int opt_get(lua_State *L, p_socket ps, int level, int name,
         void *val, int* len);
 
+static int set_opt_error(lua_State* L)
+{
+    lua_pushnil(L);
+    lua_pushstring(L, "setsockopt failed: not supported");
+
+    return 2;
+}
+
+static int get_opt_error(lua_State* L)
+{
+    lua_pushnil(L);
+    lua_pushstring(L, "getsockopt failed: not supported");
+
+    return 2;
+}
+
 /*=========================================================================*\
 * Exported functions
 \*=========================================================================*/
@@ -393,7 +409,7 @@ static int opt_setmembership(lua_State *L, p_socket ps, int level, int name)
         luaL_argerror(L, 3, "invalid 'interface' ip address");
     return opt_set(L, ps, level, name, (char *) &val, sizeof(val));
 }
-
+#if !defined(__SWITCH__)
 static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name)
 {
     struct ipv6_mreq val;                   /* obj, opt-name, table */
@@ -419,6 +435,9 @@ static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name)
     }
     return opt_set(L, ps, level, name, (char *) &val, sizeof(val));
 }
+#else
+static int opt_ip6_setmembership(lua_State *L, p_socket ps, int level, int name) { return set_opt_error(L); }
+#endif
 
 static
 int opt_get(lua_State *L, p_socket ps, int level, int name, void *val, int* len)
